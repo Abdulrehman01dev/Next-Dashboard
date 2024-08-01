@@ -8,7 +8,7 @@ import { Invoice } from '../lib/models/Invoice';
 import { Customer } from '../lib/models/customer';
 import { Revenue } from '../lib/models/revenue';
 
-// const client = await db.connect();
+  const client = await mongoose.connect(URI);
 
 async function seedUsers() {
   try {
@@ -63,6 +63,7 @@ export async function GET() {
 
     return Response.json({ message: 'Database seeded successfully' });
   } catch (error) {
+    console.log("🚀 ~ GET ~ error:", error)
     // await client.sql`ROLLBACK`;
     return Response.json({ error }, { status: 500 });
   }
