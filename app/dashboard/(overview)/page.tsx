@@ -5,16 +5,12 @@ import { lusitana } from '@/app/ui/fonts';
 import { connectDB, fetchLatestInvoices, fetchCardData } from '../../lib/data';
 import { formatCurrency } from '../../lib/utils';
 import { Suspense } from 'react';
-import { InvoiceSkeleton, RevenueChartSkeleton } from '@/app/ui/skeletons';
+import { CardsSkeleton, InvoiceSkeleton, RevenueChartSkeleton } from '@/app/ui/skeletons';
+import CardWrapper from '@/app/ui/dashboard/cards';
 
 export default async function Page() {
   await connectDB()
-  const {
-    numberOfInvoices,
-    numberOfCustomers,
-    totalPaidInvoices,
-    totalPendingInvoices,
-  } = await fetchCardData();
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   return (
     <main>
@@ -22,14 +18,9 @@ export default async function Page() {
         Dashboard
       </h1>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card title="Collected" value={formatCurrency(totalPaidInvoices)} type="collected" />
-        <Card title="Pending" value={formatCurrency(totalPendingInvoices)} type="pending" />
-        <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
-        <Card
-          title="Total Customers"
-          value={numberOfCustomers}
-          type="customers"
-        />
+        <Suspense fallback={<CardsSkeleton />}>
+          <CardWrapper /> 
+        </Suspense>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         <Suspense fallback={<RevenueChartSkeleton />}>

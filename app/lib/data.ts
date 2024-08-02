@@ -40,10 +40,7 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    // console.log(Customer);
-    
     const data = await Invoice.find().populate('customer_id').lean().limit(5).exec();
-    console.log("🚀 ~ fetchLatestInvoices ~ data:", data)
 
     const latestInvoices = data.map((invoice) => {
       const { customer_id, ...invoiceFields } = invoice;
@@ -98,28 +95,58 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    const data1 = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: "Customer", 
+          localField: 'customer_id',
+          foreignField: '_id',
+          as: 'customer'
+        }
+      },
+     
+    ]);
+    console.log(data1);
+    return [];
+    const searchQuery = query; // The search term for the customer name
+    const regex = new RegExp('de', 'i'); // Case-insensitive regex
+  
+    // Fetch invoices and populate customer data
+    const latestInvoices = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: 'customers', // The collection name for Customer
+          localField: 'customer_id',
+          foreignField: '_id',
+          as: 'customer'
+        }
+      },
+      // {
+      //   $unwind: '$customer'
+      // },
+      // {
+      //   $match: {
+      //     'customer.name': regex
+      //   }
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     amount: 1,
+      //     status: 1,
+      //     date: 1,
+      //     'customer.name': 1,
+      //     'customer.email': 1, // Include other customer fields as needed
+      //     'customer.image_url': 1
+      //   }
+      // }
+    ]).exec();
 
-    return invoices.rows;
+  // console.log("🚀 ~ latestInvoices:", latestInvoices)
+  // const customers = await Customer.find({ name: regex }).exec();
+  // console.log("🚀 ~ customers:", customers);
+    
+  return []
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');

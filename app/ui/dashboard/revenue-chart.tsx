@@ -10,6 +10,10 @@ import { fetchRevenue } from '@/app/lib/data';
 // https://airbnb.io/visx/
 
 export default async function RevenueChart( ) {
+  
+  await new Promise(resolve => setTimeout(resolve, 3000))
+  
+  
   const revenue = await fetchRevenue()
   const chartHeight = 350;
   // NOTE: Uncomment this code in Chapter 7
