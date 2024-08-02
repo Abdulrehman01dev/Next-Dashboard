@@ -1,4 +1,7 @@
 // This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
+
+import mongoose from "mongoose";
+
 // https://nextjs.org/learn/dashboard-app/fetching-data
 const users = [
   {
@@ -43,79 +46,79 @@ const customers = [
 
 const invoices = [
   {
-    customer_id: '66aa86ec55074dc87fe22661', // Evil Rabbit
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22661'), // Evil Rabbit
     amount: 15795,
     status: 'pending',
     date: '2022-12-06',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22662', // Delba de Oliveira
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22662'), // Delba de Oliveira
     amount: 20348,
     status: 'pending',
     date: '2022-11-14',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22663', // Lee Robinson
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22663'), // Lee Robinson
     amount: 3040,
     status: 'paid',
     date: '2022-10-29',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22664', // Michael Novotny
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22664'), // Michael Novotny
     amount: 44800,
     status: 'paid',
     date: '2023-09-10',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22665', // Amy Burns
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22665'), // Amy Burns
     amount: 34577,
     status: 'pending',
     date: '2023-08-05',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22666', // Balazs Orban
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22666'), // Balazs Orban
     amount: 54246,
     status: 'pending',
     date: '2023-07-16',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22661', // Evil Rabbit
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22661'), // Evil Rabbit
     amount: 666,
     status: 'pending',
     date: '2023-06-27',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22662', // Delba de Oliveira
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22662'), // Delba de Oliveira
     amount: 32545,
     status: 'paid',
     date: '2023-06-09',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22663', // Lee Robinson
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22663'), // Lee Robinson
     amount: 1250,
     status: 'paid',
     date: '2023-06-17',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22664', // Michael Novotny
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22664'), // Michael Novotny
     amount: 8546,
     status: 'paid',
     date: '2023-06-07',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22665', // Amy Burns
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22665'), // Amy Burns
     amount: 500,
     status: 'paid',
     date: '2023-08-19',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22666', // Balazs Orban
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22666'), // Balazs Orban
     amount: 8945,
     status: 'paid',
     date: '2023-06-03',
   },
   {
-    customer_id: '66aa86ec55074dc87fe22661', // Evil Rabbit
+    customer_id: new mongoose.Types.ObjectId('66aa86ec55074dc87fe22661'), // Evil Rabbit
     amount: 1000,
     status: 'paid',
     date: '2022-06-05',

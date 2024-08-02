@@ -95,58 +95,41 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const data1 = await Invoice.aggregate([
+    const result = await Invoice.aggregate([
       {
         $lookup: {
-          from: "Customer", 
-          localField: 'customer_id',
-          foreignField: '_id',
-          as: 'customer'
+          from: "customers",
+          localField: "customer_id",
+          foreignField: "_id",
+          as: "customers"
         }
       },
-     
+      { $unwind: '$customers' },
+      {
+        $match: {
+          'customers.name': {
+            $regex: query,
+            $options: 'i'
+          }
+        }
+      },
+      { $skip: offset },
+      { $limit: ITEMS_PER_PAGE },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$$ROOT", "$customers"]
+          }
+        }
+      },
+      {
+        $project: {
+          customers: 0 // Exclude the `customers` field since it's now redundant
+        }
+      }
     ]);
-    console.log(data1);
-    return [];
-    const searchQuery = query; // The search term for the customer name
-    const regex = new RegExp('de', 'i'); // Case-insensitive regex
-  
-    // Fetch invoices and populate customer data
-    const latestInvoices = await Invoice.aggregate([
-      {
-        $lookup: {
-          from: 'customers', // The collection name for Customer
-          localField: 'customer_id',
-          foreignField: '_id',
-          as: 'customer'
-        }
-      },
-      // {
-      //   $unwind: '$customer'
-      // },
-      // {
-      //   $match: {
-      //     'customer.name': regex
-      //   }
-      // },
-      // {
-      //   $project: {
-      //     _id: 1,
-      //     amount: 1,
-      //     status: 1,
-      //     date: 1,
-      //     'customer.name': 1,
-      //     'customer.email': 1, // Include other customer fields as needed
-      //     'customer.image_url': 1
-      //   }
-      // }
-    ]).exec();
+    return result;
 
-  // console.log("🚀 ~ latestInvoices:", latestInvoices)
-  // const customers = await Customer.find({ name: regex }).exec();
-  // console.log("🚀 ~ customers:", customers);
-    
-  return []
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoices.');
@@ -155,19 +138,32 @@ export async function fetchFilteredInvoices(
 
 export async function fetchInvoicesPages(query: string) {
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+    const countResult = await Invoice.aggregate([
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer_id",
+          foreignField: "_id",
+          as: "customers"
+        }
+      },
+      { $unwind: '$customers' },
+      {
+        $match: {
+          'customers.name': {
+            $regex: query,
+            $options: 'i'
+          }
+        }
+      },
+      {
+        $count: "total"
+      }
+    ]);
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
+    const totalCount = countResult.length > 0 ? countResult[0].total : 0;
+    return Math.ceil(totalCount / 6);
+
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of invoices.');
@@ -176,23 +172,12 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+    const data = await Invoice.findById(id).populate('customer_id');
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
+    const invoice = {...data, amount: data?.amount / 100}
+    console.log("🚀 ~ fetchInvoiceById ~ invoice:", invoice)
 
-    return invoice[0];
+    return invoice;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch invoice.');
@@ -201,15 +186,7 @@ export async function fetchInvoiceById(id: string) {
 
 export async function fetchCustomers() {
   try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    const customers = data.rows;
+    const customers = await Customer.find({});
     return customers;
   } catch (err) {
     console.error('Database Error:', err);
